@@ -10,6 +10,7 @@ def main(scr):
 	curses.init_pair(1, curses.COLOR_RED, curses.COLOR_RED)
 	curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_GREEN)
 	curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_BLACK)
+	curses.curs_set(False)
 	scr.nodelay(True)
 
 	tickDuration = 0.25
