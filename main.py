@@ -10,23 +10,28 @@ def main(scr):
 	curses.init_pair(1, curses.COLOR_RED, curses.COLOR_RED)
 	curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_GREEN)
 	curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_BLACK)
+	scr.nodelay(True)
 
-	tickDuration = 0.5
+	tickDuration = 0.25
 	playerCoord = [29, 2]
 	keypress = None
+	currentDirection = curses.KEY_UP
+	nextDirection = curses.KEY_UP
 
 	draw(scr)
+	drawPlayer(scr, playerCoord)
 	previousTime = time.time()
 	while True:
 		if getDeltaTime(previousTime) >= tickDuration:
-			scr.addstr(0, 0, str(time.time()), curses.color_pair(2))
-			if keypress in (curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT):
-				playerCoord = movePlayer(scr, playerCoord, keypress)
-				previousTime = time.time()
+			playerCoord = movePlayer(scr, playerCoord, nextDirection)
+			previousTime = time.time()
+			currentDirection = nextDirection
 
 		keypress = scr.getch()
-		
-		if keypress == ord('q'):
+
+		if keypress in (curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT):
+			nextDirection = getDirection(currentDirection, keypress)
+		elif keypress == ord('q'):
 			break
 		elif keypress == ord('r'):
 			scr.clear()
@@ -41,17 +46,33 @@ def getDeltaTime(previousTime):
 	return time.time() - previousTime
 
 def movePlayer(scr, coord, direction):
-	scr.delch(coord[0], coord[1])
+	erasePlayer(scr, coord)
 	if direction == curses.KEY_UP:
 		coord[0] -= 1
 	elif direction == curses.KEY_DOWN:
 		coord[0] += 1
 	elif direction == curses.KEY_LEFT:
-		coord[1] -= 1
+		coord[1] -= 2
 	elif direction == curses.KEY_RIGHT:
-		coord[1] += 1
-	scr.addstr(coord[0], coord[1], ' ', curses.color_pair(2))
+		coord[1] += 2
+	drawPlayer(scr, coord)
 	return coord
 
+def erasePlayer(scr, coord):
+	scr.addstr(coord[0], coord[1], ' ', curses.color_pair(3))
+	scr.addstr(coord[0], coord[1]+1, ' ', curses.color_pair(3))
+
+def drawPlayer(scr, coord):
+	scr.addstr(coord[0], coord[1], ' ', curses.color_pair(2))
+	scr.addstr(coord[0], coord[1]+1, ' ', curses.color_pair(2))
+
+def getDirection(direction, keypress):
+	if direction in (curses.KEY_UP, curses.KEY_DOWN):
+		if keypress in (curses.KEY_UP, curses.KEY_DOWN):
+			return direction
+	if direction in (curses.KEY_LEFT, curses.KEY_RIGHT):
+		if keypress in (curses.KEY_LEFT, curses.KEY_RIGHT):
+			return direction
+	return keypress
 
 curses.wrapper(main)
