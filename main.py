@@ -8,26 +8,35 @@ def main(scr):
 	status.refresh()
 
 	curses.start_color()
-	curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
-	curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_GREEN)
-	curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_BLACK)
+	debug = curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
+	green = curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_GREEN)
+	black = curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_BLACK)
+	blue = curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLUE)
+	debug = curses.color_pair(1)
+	green = curses.color_pair(2)
+	black = curses.color_pair(3)
+	blue = curses.color_pair(4)
 	curses.curs_set(False)
 	scr.nodelay(True)
 
 	tickDuration = 0.15
-	playerCoord = deque([[29, 2]])
+	playerOneCoord = deque([[29, 2]])
+	playerTwoCoord = deque([[29, 30]])
 	keypress = None
 	currentDirection = curses.KEY_UP
 	nextDirection = curses.KEY_UP
 
 	draw(scr)
-	drawPlayer(scr, playerCoord[0])
+	drawPlayer(scr, playerOneCoord[0], green)
+	drawPlayer(scr, playerTwoCoord[0], blue)
 	previousTime = time.time()
 	while True:
 		if getDeltaTime(previousTime) >= tickDuration:
-			playerCoord.append(movePlayer(scr, playerCoord[len(playerCoord)-1], nextDirection))
-			if len(playerCoord) > 5:
-				erasePlayer(scr, playerCoord.popleft())
+			playerOneCoord.append(movePlayer(scr, playerOneCoord[len(playerOneCoord)-1], green, nextDirection))
+			playerTwoCoord.append(movePlayer(scr, playerTwoCoord[len(playerTwoCoord)-1], blue, nextDirection))
+			if len(playerOneCoord) > 5:
+				erasePlayer(scr, playerOneCoord.popleft(), black)
+				erasePlayer(scr, playerTwoCoord.popleft(), black)
 			previousTime = time.time()
 			currentDirection = nextDirection
 
@@ -51,7 +60,7 @@ def draw(scr):
 def getDeltaTime(previousTime):
 	return time.time() - previousTime
 
-def movePlayer(scr, coord, direction):
+def movePlayer(scr, coord, color, direction):
 	newCoord = list(coord)
 	if direction == curses.KEY_UP:
 		newCoord[0] -= 1
@@ -61,16 +70,16 @@ def movePlayer(scr, coord, direction):
 		newCoord[1] -= 2
 	elif direction == curses.KEY_RIGHT:
 		newCoord[1] += 2
-	drawPlayer(scr, coord)
+	drawPlayer(scr, coord, color)
 	return newCoord
 
-def erasePlayer(scr, coord):
-	scr.addstr(coord[0], coord[1], ' ', curses.color_pair(3))
-	scr.addstr(coord[0], coord[1]+1, ' ', curses.color_pair(3))
+def erasePlayer(scr, coord, color):
+	scr.addstr(coord[0], coord[1], ' ', color)
+	scr.addstr(coord[0], coord[1]+1, ' ', color)
 
-def drawPlayer(scr, coord):
-	scr.addstr(coord[0], coord[1], ' ', curses.color_pair(2))
-	scr.addstr(coord[0], coord[1]+1, ' ', curses.color_pair(2))
+def drawPlayer(scr, coord, color):
+	scr.addstr(coord[0], coord[1], ' ', color)
+	scr.addstr(coord[0], coord[1]+1, ' ', color)
 
 def getDirection(direction, keypress):
 	if direction in (curses.KEY_UP, curses.KEY_DOWN):
