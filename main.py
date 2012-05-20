@@ -16,6 +16,25 @@ def main(scr):
 	green = curses.color_pair(2)
 	black = curses.color_pair(3)
 	blue = curses.color_pair(4)
+
+	DIRECTION_UP = 1
+	DIRECTION_DOWN = 2
+	DIRECTION_LEFT = 3
+	DIRECTION_RIGHT = 4
+
+	controlMapOne = {
+	curses.KEY_UP:DIRECTION_UP, 
+	curses.KEY_DOWN:DIRECTION_DOWN, 
+	curses.KEY_LEFT:DIRECTION_LEFT, 
+	curses.KEY_RIGHT:DIRECTION_RIGHT
+	}
+	controlMapTwo = {
+	ord('w'):DIRECTION_UP,
+	ord('s'):DIRECTION_DOWN,
+	ord('a'):DIRECTION_LEFT,
+	ord('d'):DIRECTION_RIGHT
+	}
+
 	curses.curs_set(False)
 	scr.nodelay(True)
 
@@ -23,8 +42,10 @@ def main(scr):
 	playerOneCoord = deque([[29, 2]])
 	playerTwoCoord = deque([[29, 30]])
 	keypress = None
-	currentDirection = curses.KEY_UP
-	nextDirection = curses.KEY_UP
+	currentDirectionOne = DIRECTION_UP
+	currentDirectionTwo = DIRECTION_UP
+	nextDirectionOne = DIRECTION_UP
+	nextDirectionTwo = DIRECTION_UP
 
 	draw(scr)
 	drawPlayer(scr, playerOneCoord[0], green)
@@ -32,18 +53,21 @@ def main(scr):
 	previousTime = time.time()
 	while True:
 		if getDeltaTime(previousTime) >= tickDuration:
-			playerOneCoord.append(movePlayer(scr, playerOneCoord[len(playerOneCoord)-1], green, nextDirection))
-			playerTwoCoord.append(movePlayer(scr, playerTwoCoord[len(playerTwoCoord)-1], blue, nextDirection))
+			playerOneCoord.append(movePlayer(scr, playerOneCoord[len(playerOneCoord)-1], green, nextDirectionOne, controlMapOne))
+			playerTwoCoord.append(movePlayer(scr, playerTwoCoord[len(playerTwoCoord)-1], blue, nextDirectionTwo, controlMapTwo))
 			if len(playerOneCoord) > 5:
 				erasePlayer(scr, playerOneCoord.popleft(), black)
 				erasePlayer(scr, playerTwoCoord.popleft(), black)
 			previousTime = time.time()
-			currentDirection = nextDirection
+			currentDirectionOne = nextDirectionOne
+			currentDirectionTwo = nextDirectionTwo
 
 		keypress = scr.getch()
 
 		if keypress in (curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT):
-			nextDirection = getDirection(currentDirection, keypress)
+			nextDirectionOne = getDirection(currentDirectionOne, keypress, controlMapOne)
+		elif keypress in (ord('w'), ord('a'), ord('s'), ord('d')):
+			nextDirectionTwo = getDirection(currentDirectionTwo, keypress, controlMapTwo)
 		elif keypress == ord('p'):
 			curses.delay_output(5000)
 		elif keypress == ord('q'):
@@ -60,15 +84,15 @@ def draw(scr):
 def getDeltaTime(previousTime):
 	return time.time() - previousTime
 
-def movePlayer(scr, coord, color, direction):
+def movePlayer(scr, coord, color, direction, controlMap):
 	newCoord = list(coord)
-	if direction == curses.KEY_UP:
+	if direction == 1:
 		newCoord[0] -= 1
-	elif direction == curses.KEY_DOWN:
+	elif direction == 2:
 		newCoord[0] += 1
-	elif direction == curses.KEY_LEFT:
+	elif direction == 3:
 		newCoord[1] -= 2
-	elif direction == curses.KEY_RIGHT:
+	elif direction == 4:
 		newCoord[1] += 2
 	drawPlayer(scr, coord, color)
 	return newCoord
@@ -81,13 +105,13 @@ def drawPlayer(scr, coord, color):
 	scr.addstr(coord[0], coord[1], ' ', color)
 	scr.addstr(coord[0], coord[1]+1, ' ', color)
 
-def getDirection(direction, keypress):
-	if direction in (curses.KEY_UP, curses.KEY_DOWN):
-		if keypress in (curses.KEY_UP, curses.KEY_DOWN):
+def getDirection(direction, keypress, controlMap):
+	if direction in (1, 2):
+		if controlMap[keypress] in (1, 2):
 			return direction
-	if direction in (curses.KEY_LEFT, curses.KEY_RIGHT):
-		if keypress in (curses.KEY_LEFT, curses.KEY_RIGHT):
+	if direction in (3, 4):
+		if controlMap[keypress] in (3, 4):
 			return direction
-	return keypress
+	return controlMap[keypress]
 
 curses.wrapper(main)
