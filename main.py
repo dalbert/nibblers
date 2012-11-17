@@ -48,16 +48,16 @@ def main(scr):
 	nextDirectionTwo = DIRECTION_UP
 
 	draw(scr)
-	drawPlayer(scr, playerOneCoord[0], green)
-	drawPlayer(scr, playerTwoCoord[0], blue)
+	drawPixel(scr, playerOneCoord[0], green)
+	drawPixel(scr, playerTwoCoord[0], blue)
 	previousTime = time.time()
 	while True:
 		if getDeltaTime(previousTime) >= tickDuration:
 			playerOneCoord.append(movePlayer(scr, playerOneCoord[len(playerOneCoord)-1], green, nextDirectionOne, controlMapOne))
 			playerTwoCoord.append(movePlayer(scr, playerTwoCoord[len(playerTwoCoord)-1], blue, nextDirectionTwo, controlMapTwo))
 			if len(playerOneCoord) > 5:
-				erasePlayer(scr, playerOneCoord.popleft(), black)
-				erasePlayer(scr, playerTwoCoord.popleft(), black)
+				erasePixel(scr, playerOneCoord.popleft(), black)
+				erasePixel(scr, playerTwoCoord.popleft(), black)
 			previousTime = time.time()
 			currentDirectionOne = nextDirectionOne
 			currentDirectionTwo = nextDirectionTwo
@@ -94,14 +94,14 @@ def movePlayer(scr, coord, color, direction, controlMap):
 		newCoord[1] -= 2
 	elif direction == 4:
 		newCoord[1] += 2
-	drawPlayer(scr, coord, color)
+	drawPixel(scr, coord, color)
 	return newCoord
 
-def erasePlayer(scr, coord, color):
+def erasePixel(scr, coord, color):
 	scr.addstr(coord[0], coord[1], ' ', color)
 	scr.addstr(coord[0], coord[1]+1, ' ', color)
 
-def drawPlayer(scr, coord, color):
+def drawPixel(scr, coord, color):
 	scr.addstr(coord[0], coord[1], ' ', color)
 	scr.addstr(coord[0], coord[1]+1, ' ', color)
 
