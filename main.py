@@ -1,6 +1,11 @@
 import curses
 import time
 from collections import deque
+import renderCurses
+import player
+import game
+from player import DIRECTION_UP, DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_RIGHT
+from player import player
 
 def main(scr):
 	status = curses.newwin(1, curses.COLS, 0, 0) 
@@ -17,30 +22,25 @@ def main(scr):
 	black = curses.color_pair(3)
 	blue = curses.color_pair(4)
 
-	DIRECTION_UP = 1
-	DIRECTION_DOWN = 2
-	DIRECTION_LEFT = 3
-	DIRECTION_RIGHT = 4
-
 	controlMapOne = {
-	curses.KEY_UP:DIRECTION_UP, 
-	curses.KEY_DOWN:DIRECTION_DOWN, 
-	curses.KEY_LEFT:DIRECTION_LEFT, 
-	curses.KEY_RIGHT:DIRECTION_RIGHT
+		curses.KEY_UP:DIRECTION_UP, 
+		curses.KEY_DOWN:DIRECTION_DOWN, 
+		curses.KEY_LEFT:DIRECTION_LEFT, 
+		curses.KEY_RIGHT:DIRECTION_RIGHT
 	}
 	controlMapTwo = {
-	ord('w'):DIRECTION_UP,
-	ord('s'):DIRECTION_DOWN,
-	ord('a'):DIRECTION_LEFT,
-	ord('d'):DIRECTION_RIGHT
+		ord('w'):DIRECTION_UP,
+		ord('s'):DIRECTION_DOWN,
+		ord('a'):DIRECTION_LEFT,
+		ord('d'):DIRECTION_RIGHT
 	}
 
 	curses.curs_set(False)
 	scr.nodelay(True)
 
 	tickDuration = 0.15
-	playerOneCoord = deque([[29, 2]])
-	playerTwoCoord = deque([[29, 30]])
+	playerOneCoord = player(29, 2, DIRECTION_UP)
+	playerTwoCoord = player(29, 30, DIRECTION_UP)
 	keypress = None
 	currentDirectionOne = DIRECTION_UP
 	currentDirectionTwo = DIRECTION_UP
